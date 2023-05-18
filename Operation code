@@ -1,0 +1,61 @@
+int WaterLevel= 0;
+int prevWaterLevel = 0;
+
+int echoPin = 0;
+
+int triggerPin = 0;
+
+long readUltrasonicDistance(int triggerPin, int echoPin)
+{
+  pinMode(triggerPin, OUTPUT);  // Clear the trigger
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  pinMode(echoPin, INPUT);
+  return pulseIn(echoPin, HIGH);
+}
+
+void setup()
+{
+  Serial.begin(9600);
+
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+}
+
+void loop()
+{
+  echoPin = 3;
+  triggerPin = 2;
+  WaterLevel= 0.01723 * readUltrasonicDistance(2, 3);
+  if (WaterLevel > prevWaterLevel+5 || WaterLevel < prevWaterLevel-5) {
+    Serial.println("Water level: " + String(WaterLevel));
+    prevWaterLevel = WaterLevel; // Update the previous water level value
+  
+  if (WaterLevel <= 55) {
+    Serial.println("Tank is FULL");
+    digitalWrite(8, HIGH);
+    digitalWrite(9, HIGH);
+    analogWrite(A5, 0);
+    analogWrite(A4, 255);
+    analogWrite(A3, 0);
+  }
+  else if (WaterLevel >= 280) {
+    Serial.println("Tank is EMPTY");
+    digitalWrite(8, LOW);
+    digitalWrite(9, HIGH);
+    analogWrite(A5, 255);
+    analogWrite(A4, 0);
+    analogWrite(A3, 0);
+  }
+  else {
+    Serial.println("Tank is MEDIUM");
+    analogWrite(A5, 255);   
+    analogWrite(A4, 128);   
+    analogWrite(A3, 0);      
+  }
+  }
+  delay(10); // Delay a little bit to improve simulation performance
+}
